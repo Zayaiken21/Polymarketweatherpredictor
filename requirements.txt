@@ -1,0 +1,16 @@
+streamlit>=1.36.0
+python-dotenv>=1.0.1
+requests>=2.32.0
+openai
+faster-whisper>=1.0.3
+soundfile>=0.12.1
+numpy>=1.26.0
+pandas>=2.2.0
+scikit-learn>=1.5.0
+joblib>=1.4.2
+beautifulsoup4>=4.12.3
+lxml>=5.2.1
+meteostat>=1.6.8
+pyttsx3>=2.90
+pytest>=8.0.0
+SpeechRecognition

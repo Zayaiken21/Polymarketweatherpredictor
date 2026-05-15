@@ -1,0 +1,1 @@
+PAGES = ["Home", "Chat", "Trade History", "Poly Api", "Settings"]
