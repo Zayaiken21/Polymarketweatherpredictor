@@ -20,11 +20,9 @@ logger = logging.getLogger("app")
 APP_ROOT = Path(__file__).resolve().parent
 
 st.set_page_config(page_title="Agent Cyclone - Poly Market Bot", layout="wide")
-logger.info("App starting")
 init_db()
 init_session()
 auto_discover(APP_ROOT)
-logger.info("Auto-discovery complete")
 apply_style()
 render_header()
 
@@ -32,12 +30,9 @@ if not st.session_state.logged_in:
     login_box()
 else:
     saved = load_settings(st.session_state.user_id)
-
-    if not st.session_state.get("language"):
-        st.session_state.language = saved.get("language", "en")
-
-    if not st.session_state.get("display_name"):
-        st.session_state.display_name = saved.get("display_name") or st.session_state.role
+    st.session_state.display_name = saved.get("display_name") or st.session_state.get("display_name") or "User"
+    st.session_state.language = saved.get("language", st.session_state.get("language", "en"))
+    st.session_state.voice_on = saved.get("voice_on", st.session_state.get("voice_on", True))
 
     with st.sidebar:
         page = render_menu()

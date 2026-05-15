@@ -1,16 +1,17 @@
-import pyttsx3
+import logging
 
-_engine = None
+logger = logging.getLogger("tts_service")
 
-def _get_engine():
-    global _engine
-    if _engine is None:
-        _engine = pyttsx3.init()
-    return _engine
-
-def speak_text(text: str, language: str = "en"):
+def speak_text(text, language="en"):
+    text = (text or "").strip()
     if not text:
-        return
-    engine = _get_engine()
-    engine.say(text)
-    engine.runAndWait()
+        return False
+    try:
+        import pyttsx3
+        engine = pyttsx3.init()
+        engine.say(text)
+        engine.runAndWait()
+        return True
+    except Exception:
+        logger.exception("TTS failed")
+        return False
