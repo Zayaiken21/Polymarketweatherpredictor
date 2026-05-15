@@ -52,10 +52,14 @@ def render_chat_and_voice():
             add_message("user", heard)
             add_message("assistant", reply)
 
+            st.write("Heard:", heard)
+            st.write("Reply:", reply)
+
             if spoken:
                 st.audio(spoken, format="audio/mp3")
+            else:
+                st.info("Voice playback is unavailable on this device right now, so the reply is shown in text.")
 
-            del st.session_state[audio_key]
             st.session_state.audio_input_key_counter += 1
             st.rerun()
 
