@@ -29,14 +29,21 @@ def render_admin():
     for i, item in enumerate(page_tokens):
         cols = st.columns([6, 4, 1])
         cols[0].write(item["token"])
+
+        key_name = f"owner_{st.session_state.token_page}_{i}_{item['token']}"
+        if key_name not in st.session_state:
+            st.session_state[key_name] = item.get("owner_name") or ""
+
         new_name = cols[1].text_input(
             "Client name",
-            value=item.get("owner_name") or "",
-            key=f"owner_{st.session_state.token_page}_{i}_{item['token']}",
+            key=key_name,
             label_visibility="collapsed",
         )
+
         if new_name != (item.get("owner_name") or ""):
             update_token_owner(item["token"], new_name or None)
+            st.rerun()
+
         if cols[2].button("✕", key=f"revoke_{st.session_state.token_page}_{i}_{item['token']}"):
             revoke_token(item["token"])
             st.rerun()

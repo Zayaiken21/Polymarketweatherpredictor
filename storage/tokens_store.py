@@ -1,29 +1,50 @@
-from storage.db import get_conn
+import json
+from pathlib import Path
 
-def save_token(token: str, role: str = "client", owner_name: str | None = None):
-    with get_conn() as conn:
-        conn.execute(
-            "INSERT OR REPLACE INTO tokens(token, role, owner_name, active) VALUES (?, ?, ?, 1)",
-            (token, role, owner_name),
-        )
-        conn.commit()
+TOKENS_FILE = Path("data/tokens.json")
 
-def update_token_owner(token: str, owner_name: str | None):
-    with get_conn() as conn:
-        conn.execute("UPDATE tokens SET owner_name=? WHERE token=?", (owner_name, token))
-        conn.commit()
+def _load_all():
+    if not TOKENS_FILE.exists():
+        return []
+    try:
+        data = json.loads(TOKENS_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, list) else []
+    except Exception:
+        return []
 
-def revoke_token(token: str):
-    with get_conn() as conn:
-        conn.execute("UPDATE tokens SET active=0 WHERE token=?", (token,))
-        conn.commit()
+def _save_all(tokens):
+    TOKENS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    TOKENS_FILE.write_text(json.dumps(tokens, indent=2), encoding="utf-8")
 
-def revoke_all_tokens():
-    with get_conn() as conn:
-        conn.execute("UPDATE tokens SET active=0")
-        conn.commit()
+def save_token(token, token_type="client", owner_name=None):
+    tokens = _load_all()
+    tokens.append({
+        "token": token,
+        "type": token_type,
+        "owner_name": owner_name or None,
+    })
+    _save_all(tokens)
 
 def list_tokens():
-    with get_conn() as conn:
-        rows = conn.execute("SELECT * FROM tokens WHERE active=1 ORDER BY created_at DESC").fetchall()
-    return [dict(r) for r in rows]
+    return _load_all()
+
+def revoke_token(token):
+    tokens = [t for t in _load_all() if t.get("token") != token]
+    _save_all(tokens)
+
+def revoke_all_tokens():
+    _save_all([])
+
+def update_token_owner(token, owner_name):
+    tokens = _load_all()
+    for item in tokens:
+        if item.get("token") == token:
+            item["owner_name"] = owner_name or None
+            break
+    _save_all(tokens)
+
+def get_token_owner(token):
+    for item in _load_all():
+        if item.get("token") == token:
+            return item.get("owner_name")
+    return None

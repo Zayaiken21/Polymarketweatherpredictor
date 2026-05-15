@@ -30,14 +30,14 @@ def save_settings(user_id, settings):
 def save_display_name(user_id, display_name):
     save_settings(user_id, {"display_name": display_name})
 
-def save_credentials(user_id, api_key=None, api_secret=None, wallet_address=None):
+def save_credentials(user_id, api_key=None, api_secret=None, user_address=None):
     payload = {}
     if api_key is not None:
         payload["poly_api_key"] = api_key
     if api_secret is not None:
         payload["poly_api_secret"] = api_secret
-    if wallet_address is not None:
-        payload["poly_wallet_address"] = wallet_address
+    if user_address is not None:
+        payload["poly_wallet_address"] = user_address
     save_settings(user_id, payload)
 
 def clear_session_data(user_id):

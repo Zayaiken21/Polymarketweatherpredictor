@@ -6,6 +6,7 @@ def init_session():
         "role": None,
         "user_id": None,
         "display_name": "",
+        "client_name": "",
         "language": "en",
         "voice_on": True,
         "messages": [],

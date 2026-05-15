@@ -43,12 +43,6 @@ def render_poly_api():
         else:
             st.error("Unable to read balance.")
 
-    with st.expander("Debug", expanded=False):
-        st.write("Saved API key:", bool(st.session_state.get("poly_api_key")))
-        st.write("Saved API secret:", bool(st.session_state.get("poly_api_secret")))
-        st.write("Ping:", st.session_state.get("poly_ping_result", {}))
-        st.write("Balance raw:", st.session_state.get("poly_balance_result", {}))
-
 def _format_usd_balance(balance):
     if balance is None:
         return "USD balance unavailable"

@@ -5,6 +5,7 @@ from pathlib import Path
 from storage.db import init_db
 from auth.session_manager import init_session
 from storage.settings_store import load_settings, clear_session_data
+from storage.tokens_store import get_token_owner
 from ui.shell import apply_style, render_header
 from ui.login import login_box
 from ui.navigation import render_menu
@@ -36,13 +37,19 @@ else:
     if not st.session_state.get("language"):
         st.session_state.language = saved.get("language", "en")
 
-    if not st.session_state.get("display_name"):
-        st.session_state.display_name = saved.get("display_name") or st.session_state.role
+    if st.session_state.role == "CEO":
+        st.session_state.client_name = "CEO"
+        st.session_state.display_name = "CEO"
+    else:
+        token_owner = get_token_owner(st.session_state.user_id)
+        resolved_name = token_owner or saved.get("display_name") or "Client"
+        st.session_state.client_name = resolved_name
+        st.session_state.display_name = resolved_name
 
     with st.sidebar:
         page = render_menu()
         st.divider()
-        st.write(f"Signed in as: **{st.session_state.display_name}**")
+        st.write(f"Signed in as: **{st.session_state.client_name}**")
         st.write(f"Language: **{st.session_state.language}**")
         st.divider()
 
@@ -52,6 +59,7 @@ else:
             st.session_state.role = None
             st.session_state.user_id = None
             st.session_state.display_name = ""
+            st.session_state.client_name = ""
             st.session_state.messages = []
             st.session_state.voice_on = True
             st.session_state.generated_tokens = []

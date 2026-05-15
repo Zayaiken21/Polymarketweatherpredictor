@@ -3,6 +3,9 @@ from core.chat_state import init_chat, add_message
 from services.llm_service import respond_with_voice
 from core.voice_pipeline import process_voice_bytes
 
+def clear_conversation():
+    st.session_state.messages = []
+
 def render_home():
     st.markdown(
         "<div class='card home-card'><h2 class='page-title'>Welcome</h2><p class='subtle'>Use the sidebar to move between chat, trading tools, and settings.</p></div>",
@@ -43,7 +46,6 @@ def render_chat_and_voice():
             )
             add_message("user", heard)
             add_message("assistant", reply)
-            st.write(spoken["text"])
             st.session_state.audio_input_key_counter += 1
             st.rerun()
 
