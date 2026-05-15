@@ -1,16 +1,7 @@
-import os
 import streamlit as st
 from auth.admin_auth import verify_ceo_password
 from storage.settings_store import save_display_name, load_settings
 from storage.tokens_store import get_token_owner
-
-def _get_ceo_password():
-    try:
-        if "CEO_PASSWORD" in st.secrets:
-            return st.secrets["CEO_PASSWORD"]
-    except Exception:
-        pass
-    return os.getenv("CEO_PASSWORD", "ceo1")
 
 def login_box():
     st.title("Sign in")
@@ -22,8 +13,7 @@ def login_box():
 
     if submitted:
         if role == "CEO":
-            expected = _get_ceo_password()
-            if verify_ceo_password(credential, expected):
+            if verify_ceo_password(credential):
                 st.session_state.logged_in = True
                 st.session_state.role = "CEO"
                 st.session_state.user_id = "ceo"

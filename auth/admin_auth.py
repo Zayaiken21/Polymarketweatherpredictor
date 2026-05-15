@@ -1,10 +1,15 @@
-from storage.settings_store import save_display_name, delete_user_data
+import os
+import hmac
+import streamlit as st
 
-def verify_ceo_password(password: str, expected_password: str) -> bool:
-    return bool(password and expected_password and password == expected_password)
+def get_ceo_password():
+    try:
+        if "CEO_PASSWORD" in st.secrets:
+            return st.secrets["CEO_PASSWORD"]
+    except Exception:
+        pass
+    return os.getenv("CEO_PASSWORD", "")
 
-def update_display_name(user_id, display_name):
-    save_display_name(user_id, display_name)
-
-def delete_user(user_id):
-    delete_user_data(user_id)
+def verify_ceo_password(entered: str):
+    expected = get_ceo_password()
+    return hmac.compare_digest((entered or "").strip(), (expected or "").strip())
