@@ -1,34 +1,8 @@
 {
   "ceo": {
-    "display_name": "CEO",
-    "language": "en",
-    "voice_on": false
+    "display_name": "CEO"
   },
   "mnnneQAXzy4cD73": {
     "display_name": "mnnneQAXzy4cD73"
-  },
-  "ZinFturMERGOkKo": {
-    "display_name": "ZinFturMERGOkKo",
-    "poly_api_key": "ef559fe2-e212-48ec-8ead -7  9109917ac82",
-    "poly_api_secret": "DdsS5sKF960tWtLh0+I4fP1c  admj074XQOvcw2udAcEU8H6a  N8953IhWRfOM57a0o/RufGVj  IaRuDPCUdMjggg ="
-  },
-  "VF3d8hejxefWvkt": {
-    "display_name": "VF3d8hejxefWvkt"
-  },
-  "18hckZaDJRIF4hu": {
-    "display_name": "18hckZaDJRIF4hu",
-    "language": "en",
-    "voice_on": true
-  },
-  "tony": {
-    "display_name": "tony"
-  },
-  "zaack": {
-    "display_name": "zaack"
-  },
-  "Leekv1": {
-    "display_name": "Leekv1",
-    "poly_api_key": "ef559fe2-e212-48ec-8ead -7  9109917ac82",
-    "poly_api_secret": "DdsS5sKF960tWtLh0+I4fP1c  admj074XQOvcw2udAcEU8H6a  N8953IhWRfOM57a0o/RufGVj  IaRuDPCUdMjggg ="
   }
 }

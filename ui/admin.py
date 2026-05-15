@@ -11,13 +11,11 @@ def render_admin():
     if "token_page" not in st.session_state:
         st.session_state.token_page = 1
 
-    with st.form("token_generate_form", clear_on_submit=True):
-        owner_name = st.text_input("Client name", key="token_owner_name", placeholder="Client name")
-        submitted = st.form_submit_button("Generate token", use_container_width=True)
+    owner_name = st.text_input("Client name", key="token_owner_name", placeholder="Client name")
 
-    if submitted:
+    if st.button("Generate token", use_container_width=True, key="gen_token_btn"):
         token = generate_tokens(1)[0]
-        save_token(token, "client", owner_name.strip() or None)
+        save_token(token, "client", owner_name or None)
         st.rerun()
 
     st.divider()
@@ -30,22 +28,15 @@ def render_admin():
 
     for i, item in enumerate(page_tokens):
         cols = st.columns([6, 4, 1])
-        cols[0].write(item.get("owner_name") or item["token"])
-
-        edit_key = f"owner_{st.session_state.token_page}_{i}_{item['token']}"
-        current_name = item.get("owner_name") or ""
-
-        edited_name = cols[1].text_input(
+        cols[0].write(item["token"])
+        new_name = cols[1].text_input(
             "Client name",
-            value=current_name,
-            key=edit_key,
+            value=item.get("owner_name") or "",
+            key=f"owner_{st.session_state.token_page}_{i}_{item['token']}",
             label_visibility="collapsed",
         )
-
-        if edited_name != current_name:
-            update_token_owner(item["token"], edited_name.strip() or None)
-            st.rerun()
-
+        if new_name != (item.get("owner_name") or ""):
+            update_token_owner(item["token"], new_name or None)
         if cols[2].button("✕", key=f"revoke_{st.session_state.token_page}_{i}_{item['token']}"):
             revoke_token(item["token"])
             st.rerun()

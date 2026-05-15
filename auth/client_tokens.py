@@ -1,7 +1,12 @@
 import secrets
 import string
+from config.constants import TOKEN_LENGTH
 
-ALPHABET = string.ascii_letters + string.digits
+_ALLOWED = string.ascii_letters + string.digits
 
-def generate_tokens(count=1, length=15):
-    return ["".join(secrets.choice(ALPHABET) for _ in range(length)) for _ in range(count)]
+def generate_token(length=TOKEN_LENGTH):
+    return "".join(secrets.choice(_ALLOWED) for _ in range(length))
+
+def generate_tokens(count=1):
+    count = max(1, int(count))
+    return [generate_token() for _ in range(count)]
