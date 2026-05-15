@@ -1,16 +1,12 @@
-import pyttsx3
-
-_engine = None
-
-def _get_engine():
-    global _engine
-    if _engine is None:
-        _engine = pyttsx3.init()
-    return _engine
+import io
+from gtts import gTTS
 
 def speak_text(text: str, language: str = "en"):
     if not text:
-        return
-    engine = _get_engine()
-    engine.say(text)
-    engine.runAndWait()
+        return None
+
+    fp = io.BytesIO()
+    tts = gTTS(text=text, lang=language or "en")
+    tts.write_to_fp(fp)
+    fp.seek(0)
+    return fp.read()
