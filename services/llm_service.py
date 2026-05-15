@@ -8,19 +8,16 @@ from config.settings import settings
 logger = logging.getLogger("llm_service")
 _client = None
 
-def _system_prompt():
-    return (
-        "You are Poly Market Bot, an AI assistant for the Polymarket weather predictor app. "
-        "Your name is Poly Market Bot. "
-        "You help the user read market data, explain predictions, summarize signals, and answer clearly. "
-        "Be concise, intelligent, and accurate. "
-        "If you do not know something, say so plainly."
-    )
+def _clean_host(host: str) -> str:
+    host = (host or "").strip()
+    if not host or host == "http://your-ollama-server:11434":
+        return "http://127.0.0.1:11434"
+    return host
 
 def get_client():
     global _client
     if _client is None:
-        _client = ollama.Client(host=settings.ollama_host)
+        _client = ollama.Client(host=_clean_host(settings.ollama_host))
     return _client
 
 @lru_cache(maxsize=1)
@@ -31,6 +28,15 @@ def ollama_available():
     except Exception:
         logger.exception("Ollama availability check failed")
         return False
+
+def _system_prompt():
+    return (
+        "You are Poly Market Bot, an AI assistant for the Polymarket weather predictor app. "
+        "Your name is Poly Market Bot. "
+        "You help the user read market data, explain predictions, summarize signals, and answer clearly. "
+        "Be concise, intelligent, and accurate. "
+        "If you do not know something, say so plainly."
+    )
 
 def _build_messages(prompt: str, history=None, language="en"):
     history = history or []
@@ -51,7 +57,7 @@ def generate_response(prompt: str, history=None, language="en") -> str:
         return ""
 
     if not ollama_available():
-        return f"Ollama is not reachable at {settings.ollama_host}."
+        return f"Ollama is not reachable at {_clean_host(settings.ollama_host)}."
 
     try:
         resp = get_client().chat(
