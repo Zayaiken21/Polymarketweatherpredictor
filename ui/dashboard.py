@@ -31,21 +31,31 @@ def render_chat_and_voice():
         add_message("assistant", reply)
         st.rerun()
 
+    if "audio_input_key_counter" not in st.session_state:
+        st.session_state.audio_input_key_counter = 0
+
     if st.session_state.get("voice_on", True):
+        audio_key = f"audio_input_{st.session_state.audio_input_key_counter}"
         audio = st.audio_input(
             "Mic",
             sample_rate=16000,
-            key=f"audio_input_{st.session_state.get('audio_input_key_counter', 0)}",
+            key=audio_key,
         )
+
         if audio:
             heard, reply, spoken = process_voice_bytes(
                 audio.read(),
                 history=st.session_state.messages[-10:],
                 language=st.session_state.get("language", "en"),
-                voice_on=True,
+                voice_on=st.session_state.get("voice_on", True),
             )
             add_message("user", heard)
             add_message("assistant", reply)
+
+            if spoken:
+                st.audio(spoken, format="audio/mp3")
+
+            del st.session_state[audio_key]
             st.session_state.audio_input_key_counter += 1
             st.rerun()
 

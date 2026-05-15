@@ -5,14 +5,9 @@ from services.tts_service import speak_text
 def process_voice_bytes(audio_bytes, history=None, language="en", voice_on=True):
     transcript = transcribe_audio(audio_bytes, language=language) or ""
     reply = generate_response(transcript, history=history or [], language=language)
-    spoken = {"text": reply, "played": False, "audio_bytes": None}
 
+    spoken = None
     if voice_on and reply:
-        try:
-            audio_bytes_out = speak_text(reply, language=language)
-            spoken["audio_bytes"] = audio_bytes_out
-            spoken["played"] = bool(audio_bytes_out)
-        except Exception:
-            spoken["played"] = False
+        spoken = speak_text(reply, language=language)
 
     return transcript, reply, spoken
