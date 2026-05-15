@@ -6,9 +6,9 @@ def speak_text(text: str, language: str = "en"):
         return None
 
     try:
-        fp = io.BytesIO()
+        mp3_fp = io.BytesIO()
         tts = gTTS(text=text, lang=language or "en")
-        tts.write_to_fp(fp)
-        return fp.getvalue()
+        tts.write_to_fp(mp3_fp)
+        return mp3_fp.getvalue()
     except Exception:
         return None
