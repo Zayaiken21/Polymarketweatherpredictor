@@ -1,6 +1,8 @@
 {
   "ceo": {
-    "display_name": "CEO"
+    "display_name": "CEO",
+    "language": "en",
+    "voice_on": false
   },
   "mnnneQAXzy4cD73": {
     "display_name": "mnnneQAXzy4cD73"

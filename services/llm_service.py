@@ -1,37 +1,41 @@
-import os
 import logging
 from functools import lru_cache
-import requests
+
+import ollama
+
+from config.settings import settings
 
 logger = logging.getLogger("llm_service")
+_client = None
 
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1")
-LLM_PROVIDER = "ollama"
+def _system_prompt():
+    return (
+        "You are Poly Market Bot, an AI assistant for the Polymarket weather predictor app. "
+        "Your name is Poly Market Bot. "
+        "You help the user read market data, explain predictions, summarize signals, and answer clearly. "
+        "Be concise, intelligent, and accurate. "
+        "If you do not know something, say so plainly."
+    )
+
+def get_client():
+    global _client
+    if _client is None:
+        _client = ollama.Client(host=settings.ollama_host)
+    return _client
 
 @lru_cache(maxsize=1)
-def _ollama_ready():
+def ollama_available():
     try:
-        r = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=2)
-        logger.info("Ollama ping status=%s", r.status_code)
-        return r.ok
+        get_client().list()
+        return True
     except Exception:
-        logger.exception("Ollama ping failed")
+        logger.exception("Ollama availability check failed")
         return False
 
 def _build_messages(prompt: str, history=None, language="en"):
     history = history or []
-    messages = [
-        {
-            "role": "system",
-            "content": (
-                "You are Agent Cyclone. Reply in the user's language. "
-                "Be accurate, concise, and helpful. "
-                "If tools or data are missing, say so clearly."
-            ),
-        }
-    ]
-    for msg in history[-12:]:
+    messages = [{"role": "system", "content": _system_prompt()}]
+    for msg in history[-20:]:
         role = msg.get("role", "user")
         if role not in ("user", "assistant", "system"):
             role = "user"
@@ -41,32 +45,23 @@ def _build_messages(prompt: str, history=None, language="en"):
     messages.append({"role": "user", "content": prompt})
     return messages
 
-def _ask_ollama(prompt: str, history=None, language="en"):
-    payload = {
-        "model": OLLAMA_MODEL,
-        "messages": _build_messages(prompt, history=history, language=language),
-        "stream": False,
-    }
-    logger.info("Sending prompt to Ollama model=%s", OLLAMA_MODEL)
-    r = requests.post(f"{OLLAMA_HOST}/api/chat", json=payload, timeout=(5, 20))
-    r.raise_for_status()
-    data = r.json()
-    content = (data.get("message", {}) or {}).get("content", "").strip()
-    return content or "I couldn’t generate a response."
-
-def generate_response(prompt: str, history=None, language="en"):
+def generate_response(prompt: str, history=None, language="en") -> str:
     prompt = (prompt or "").strip()
     if not prompt:
         return ""
 
-    if _ollama_ready():
-        try:
-            return _ask_ollama(prompt, history=history, language=language)
-        except Exception:
-            logger.exception("Ollama generation failed")
-            return "I’m having trouble generating a response right now."
+    if not ollama_available():
+        return f"Ollama is not reachable at {settings.ollama_host}."
 
-    return "Ollama is not configured or not reachable."
+    try:
+        resp = get_client().chat(
+            model=settings.ollama_model,
+            messages=_build_messages(prompt, history=history, language=language),
+        )
+        return resp["message"]["content"]
+    except Exception:
+        logger.exception("Ollama chat failed")
+        return "I’m having trouble generating a response right now."
 
 def respond_with_voice(prompt: str, history=None, language="en", voice_on=True):
     reply = generate_response(prompt, history=history, language=language)
