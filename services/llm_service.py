@@ -11,13 +11,16 @@ _client = None
 def _clean_host(host: str) -> str:
     host = (host or "").strip()
     if not host or host == "http://your-ollama-server:11434":
-        return "http://127.0.0.1:11434"
+        return "https://ollama.com" if settings.ollama_api_key else "http://127.0.0.1:11434"
     return host
 
 def get_client():
     global _client
     if _client is None:
-        _client = ollama.Client(host=_clean_host(settings.ollama_host))
+        kwargs = {"host": _clean_host(settings.ollama_host)}
+        if settings.ollama_api_key:
+            kwargs["headers"] = {"Authorization": f"Bearer {settings.ollama_api_key}"}
+        _client = ollama.Client(**kwargs)
     return _client
 
 @lru_cache(maxsize=1)
